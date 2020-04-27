@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import produce from "immer";
 
 import "./App.css";
 
-const NUM_ROWS = 40;
-const NUM_COLS = 60;
+const NUM_ROWS = 30;
+const NUM_COLS = 40;
 
 const App = () => {
     const [grid, setGrid] = useState(() => {
@@ -20,18 +21,26 @@ const App = () => {
         <div
             style={{
                 display: "grid",
-                gridTemplateColumns: `repeat(${NUM_COLS}, 20px)`,
+                margin: "40px 40px",
+                gridTemplateColumns: `repeat(${NUM_COLS}, 30px)`,
+                gridTemplateRows: `repeat(${NUM_ROWS}, 30px)`,
             }}
         >
             {grid.map((rows, i) =>
                 rows.map((col, j) => (
                     <div
                         key={`${i}-${j}`}
+                        onClick={() => {
+                            const newGrid = produce(grid, (gridCopy) => {
+                                gridCopy[i][j] = 1;
+                            });
+                            setGrid(newGrid);
+                        }}
                         style={{
-                            width: 20,
-                            height: 20,
+                            width: 25,
+                            height: 25,
                             backgroundColor: grid[i][j] ? "pink" : undefined,
-                            border: "solid 1px black",
+                            border: "solid 1px #4d5259",
                         }}
                     />
                 ))
