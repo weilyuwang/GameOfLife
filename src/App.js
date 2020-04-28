@@ -5,7 +5,7 @@ import { Button, Container } from "@material-ui/core";
 import "./App.css";
 
 const NUM_ROWS = 28;
-const NUM_COLS = 40;
+const NUM_COLS = 46;
 
 const operations = [
     [0, 1],
@@ -18,14 +18,29 @@ const operations = [
     [-1, 0],
 ];
 
+const generateRandomGrid = () => {
+    const rows = [];
+    for (let i = 0; i < NUM_ROWS; i++) {
+        rows.push(
+            Array.from(Array(NUM_COLS), () => (Math.random() > 0.8 ? 1 : 0))
+        );
+    }
+    // return the initial state: grid
+    return rows;
+};
+
+const generateEmptyGrid = () => {
+    const rows = [];
+    for (let i = 0; i < NUM_ROWS; i++) {
+        rows.push(Array(NUM_COLS).fill(0));
+    }
+
+    return rows;
+};
+
 const App = () => {
     const [grid, setGrid] = useState(() => {
-        const rows = [];
-        for (let i = 0; i < NUM_ROWS; i++) {
-            rows.push(Array(NUM_COLS).fill(0));
-        }
-        // return the initial state: grid
-        return rows;
+        return generateEmptyGrid();
     });
 
     const [running, setRunning] = useState(false);
@@ -70,10 +85,9 @@ const App = () => {
         });
 
         // simulate
-        setTimeout(runSimulation, 1000);
+        setTimeout(runSimulation, 200);
     }, []);
 
-    console.log(grid);
     return (
         <Container style={{ marginTop: "20px" }}>
             <Button
@@ -86,15 +100,37 @@ const App = () => {
                 }}
                 variant="contained"
                 color="primary"
+                style={{ fontWeight: "bold" }}
             >
                 {running ? "STOP" : "START"}
             </Button>
+            <Button
+                onClick={() => {
+                    setGrid(generateRandomGrid());
+                }}
+                variant="contained"
+                style={{ marginLeft: "20px", fontWeight: "bold" }}
+                disabled={runningRef.current}
+            >
+                RANDOM
+            </Button>
+            <Button
+                onClick={() => {
+                    setGrid(generateEmptyGrid());
+                }}
+                variant="contained"
+                color="secondary"
+                style={{ marginLeft: "20px", fontWeight: "bold" }}
+                disabled={runningRef.current}
+            >
+                CLEAR
+            </Button>
             <div
                 style={{
-                    marginTop: "20px",
+                    marginTop: "30px",
                     display: "grid",
-                    gridTemplateColumns: `repeat(${NUM_COLS}, 30px)`,
-                    gridTemplateRows: `repeat(${NUM_ROWS}, 30px)`,
+                    gridTemplateColumns: `repeat(${NUM_COLS}, 28px)`,
+                    gridTemplateRows: `repeat(${NUM_ROWS}, 28px)`,
                 }}
             >
                 {grid.map((rows, i) =>
@@ -102,10 +138,15 @@ const App = () => {
                         <div
                             key={`${i}-${j}`}
                             onClick={() => {
-                                const newGrid = produce(grid, (gridCopy) => {
-                                    gridCopy[i][j] = grid[i][j] ? 0 : 1;
-                                });
-                                setGrid(newGrid);
+                                if (!runningRef.current) {
+                                    const newGrid = produce(
+                                        grid,
+                                        (gridCopy) => {
+                                            gridCopy[i][j] = grid[i][j] ? 0 : 1;
+                                        }
+                                    );
+                                    setGrid(newGrid);
+                                }
                             }}
                             style={{
                                 width: 25,
